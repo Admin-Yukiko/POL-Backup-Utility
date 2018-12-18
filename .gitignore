@@ -48,7 +48,7 @@ lib/
 
 # Other files
 # Binaries, ini
-*.exe
+
 
 # Misc files
 *.lps
