@@ -1,0 +1,272 @@
+object POLBackupper: TPOLBackupper
+  Left = 436
+  Height = 202
+  Top = 417
+  Width = 827
+  BorderStyle = bsDialog
+  Caption = 'POL Backupper'
+  ClientHeight = 202
+  ClientWidth = 827
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -13
+  Font.Name = 'Liberation Serif'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  OnClose = FormClose
+  OnShow = FormShow
+  ShowHint = True
+  LCLVersion = '1.8.0.6'
+  object TimeEdit1: TTimeEdit
+    Left = 24
+    Height = 23
+    Hint = 'Use the clock button to set the time of day that'#13#10'the backups will occur. Time is 24 hour format.'#13#10'When you have chosen the hour and minutes'#13#10'double-click on the minutes or hour or press'#13#10'enter.'
+    Top = 82
+    Width = 103
+    ButtonWidth = 23
+    DirectInput = False
+    NumGlyphs = 1
+    MaxLength = 0
+    TabOrder = 0
+    Text = '00:00'
+  end
+  object TimeLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 65
+    Width = 82
+    Caption = 'Time to backup'
+    ParentColor = False
+  end
+  object StartBtn: TButton
+    Left = 154
+    Height = 30
+    Hint = 'Starts the scheduler.'
+    Top = 75
+    Width = 70
+    Caption = 'Start'
+    OnClick = StartBtnClick
+    TabOrder = 1
+  end
+  object SourceDirEdit: TEdit
+    Left = 522
+    Height = 23
+    Top = 82
+    Width = 194
+    ReadOnly = True
+    TabOrder = 2
+  end
+  object DestDirEdit: TEdit
+    Left = 522
+    Height = 23
+    Top = 137
+    Width = 194
+    ReadOnly = True
+    TabOrder = 3
+  end
+  object SourceDirBtn: TButton
+    Left = 727
+    Height = 25
+    Hint = 'Choose the directory you want to backup to a'#13#10'ZIP file. Be aware this will include all subdirectories'#13#10'under this directory.'
+    Top = 80
+    Width = 74
+    Caption = 'Browse'
+    OnClick = SourceDirBtnClick
+    TabOrder = 4
+  end
+  object DestDirBtn: TButton
+    Left = 727
+    Height = 25
+    Hint = 'Choose the directory in which you want the backups'#13#10'to be stored.'
+    Top = 135
+    Width = 74
+    Caption = 'Browse'
+    OnClick = DestDirBtnClick
+    TabOrder = 5
+  end
+  object StopBtn: TButton
+    Left = 245
+    Height = 30
+    Hint = 'Stops the scheduler.'
+    Top = 75
+    Width = 72
+    Caption = 'Stop'
+    OnClick = StopBtnClick
+    TabOrder = 6
+  end
+  object BkpLocLabel: TLabel
+    Left = 522
+    Height = 15
+    Top = 65
+    Width = 183
+    Caption = 'The Location You Wish to Backup'
+    ParentColor = False
+  end
+  object Label1: TLabel
+    Left = 522
+    Height = 15
+    Top = 120
+    Width = 118
+    Caption = 'Your Backup Location'
+    ParentColor = False
+  end
+  object StartPOLBtn: TButton
+    Left = 329
+    Height = 25
+    Hint = 'This button launches POL.'#13#10'Obvious isn''t it?'
+    Top = 135
+    Width = 80
+    Caption = 'Start POL'
+    OnClick = StartPOLBtnClick
+    TabOrder = 7
+  end
+  object POLDirEdit: TEdit
+    Left = 24
+    Height = 23
+    Top = 137
+    Width = 176
+    ReadOnly = True
+    TabOrder = 8
+  end
+  object POLDirBrowseBtn: TButton
+    Left = 210
+    Height = 25
+    Hint = 'Locate you POL installation.'
+    Top = 135
+    Width = 75
+    Caption = 'Browse'
+    OnClick = POLDirBrowseBtnClick
+    TabOrder = 9
+  end
+  object POLDirLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 120
+    Width = 175
+    Caption = 'The location of your POL Folder:'
+    ParentColor = False
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 179
+    Width = 827
+    Panels = <>
+    SimpleText = '    Status of the Backup Scheduler:'
+  end
+  object BackupFileNameEdit: TEdit
+    Left = 341
+    Height = 23
+    Hint = 'Enter the name to assign to the backed up file.'#13#10'Note that the date will be appended'#13#10'to the end of the file name. Default name is'#13#10'"Backup"'
+    Top = 82
+    Width = 147
+    TabOrder = 11
+    Text = 'Backup'
+  end
+  object Label2: TLabel
+    Left = 341
+    Height = 15
+    Top = 65
+    Width = 102
+    Caption = 'Back-up File Name:'
+    ParentColor = False
+  end
+  object DaysCheckGroup: TCheckGroup
+    Left = 24
+    Height = 40
+    Hint = 'Select the days to perform the backup or check'#13#10'the Select All Days check box to enable a backup'#13#10'every day.'
+    Top = 12
+    Width = 777
+    AutoFill = True
+    Caption = 'Select the day or days on which to back-up:'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 20
+    ClientWidth = 773
+    ColumnLayout = clVerticalThenHorizontal
+    Columns = 8
+    TabOrder = 12
+    object ToglAllDaysCheckBox: TCheckBox
+      Left = 0
+      Height = 19
+      Top = 0
+      Width = 102
+      Align = alCustom
+      Caption = 'Select All Days'
+      OnChange = ToglAllDaysCheckBoxChange
+      TabOrder = 0
+    end
+    object SundayCheckBox: TCheckBox
+      Left = 179
+      Height = 19
+      Top = 0
+      Width = 61
+      Align = alCustom
+      Caption = 'Sunday'
+      TabOrder = 1
+    end
+    object MondayCheckBox: TCheckBox
+      Left = 260
+      Height = 19
+      Top = 0
+      Width = 66
+      Align = alCustom
+      Caption = 'Monday'
+      TabOrder = 2
+    end
+    object TuesdayCheckBox: TCheckBox
+      Left = 346
+      Height = 19
+      Top = 0
+      Width = 67
+      Align = alCustom
+      Caption = 'Tuesday'
+      TabOrder = 3
+    end
+    object WednesdayCheckBox: TCheckBox
+      Left = 433
+      Height = 19
+      Top = 0
+      Width = 85
+      Align = alCustom
+      Caption = 'Wednesday'
+      TabOrder = 4
+    end
+    object ThursdayCheckBox: TCheckBox
+      Left = 537
+      Height = 19
+      Top = 0
+      Width = 72
+      Align = alCustom
+      Caption = 'Thursday'
+      TabOrder = 5
+    end
+    object FridayCheckBox: TCheckBox
+      Left = 630
+      Height = 19
+      Top = 0
+      Width = 54
+      Align = alCustom
+      Caption = 'Friday'
+      TabOrder = 6
+    end
+    object SaturdayCheckBox: TCheckBox
+      Left = 704
+      Height = 19
+      Top = 0
+      Width = 68
+      Align = alCustom
+      Caption = 'Saturday'
+      TabOrder = 7
+    end
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog
+    left = 665
+    top = 65516
+  end
+end
