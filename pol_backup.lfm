@@ -151,7 +151,7 @@ object POLBackupper: TPOLBackupper
     Top = 179
     Width = 827
     Panels = <>
-    SimpleText = '    Status of the Backup Scheduler:    Stopped.'''
+    SimpleText = '    Status of the Backup Scheduler:    Stopped.'
   end
   object BackupFileNameEdit: TEdit
     Left = 341
