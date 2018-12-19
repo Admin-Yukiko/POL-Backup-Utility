@@ -105,8 +105,8 @@ object POLBackupper: TPOLBackupper
     Left = 522
     Height = 15
     Top = 120
-    Width = 118
-    Caption = 'Your Backup Location'
+    Width = 147
+    Caption = 'Where to save the back-up:'
     ParentColor = False
   end
   object StartPOLBtn: TButton
