@@ -38,12 +38,12 @@ object POLBackupper: TPOLBackupper
     ParentColor = False
   end
   object StartBtn: TButton
-    Left = 154
+    Left = 146
     Height = 30
     Hint = 'Starts the scheduler.'
     Top = 75
-    Width = 70
-    Caption = 'Start'
+    Width = 78
+    Caption = 'Start Backup'
     OnClick = StartBtnClick
     TabOrder = 1
   end
@@ -84,12 +84,12 @@ object POLBackupper: TPOLBackupper
     TabOrder = 5
   end
   object StopBtn: TButton
-    Left = 245
+    Left = 240
     Height = 30
     Hint = 'Stops the scheduler.'
     Top = 75
-    Width = 72
-    Caption = 'Stop'
+    Width = 80
+    Caption = 'Stop Backup'
     OnClick = StopBtnClick
     TabOrder = 6
   end
