@@ -485,7 +485,7 @@ begin
   SplashScrn.Show;
   SplashScrn.Update;
   Application.ProcessMessages;
-  Sleep(5000);
+  Sleep(3000);
 	SplashScrn.Close;
 end;
 
