@@ -29,7 +29,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, POL_backup, splash
+  Forms, POL_backup, splash, laz_synapse
   { you can add units after this };
 
 {$R *.res}

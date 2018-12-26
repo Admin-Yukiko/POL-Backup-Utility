@@ -35,51 +35,48 @@ type
   { TPOLBackupper }
 
   TPOLBackupper = class(TForm)
-    StartPOLBtn: TButton;
-    BackupFileNameEdit: TEdit;
-    DaysCheckGroup: TCheckGroup;
-    Label2: TLabel;
-    StatusBar1: TStatusBar;
-    ToglAllDaysCheckBox: TCheckBox;
-    POLDirBrowseBtn: TButton;
-    POLDirEdit: TEdit;
-    Label1: TLabel;
-    POLDirLabel: TLabel;
-    BkpLocLabel: TLabel;
-    StopBtn: TButton;
-    StartBtn: TButton;
-    SourceDirBtn: TButton;
-    DestDirBtn: TButton;
-    SourceDirEdit: TEdit;
-    DestDirEdit: TEdit;
-    SelectDirectoryDialog1: TSelectDirectoryDialog;
-    TimeLabel: TLabel;
-    MondayCheckBox: TCheckBox;
-    TimeEdit1: TTimeEdit;
-    TuesdayCheckBox: TCheckBox;
-    WednesdayCheckBox: TCheckBox;
-    ThursdayCheckBox: TCheckBox;
-    FridayCheckBox: TCheckBox;
-    SaturdayCheckBox: TCheckBox;
-    SundayCheckBox: TCheckBox;
-    procedure DestDirBtnClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure FormShow(Sender: TObject);
-    procedure SourceDirBtnClick(Sender: TObject);
-    procedure StartPOLBtnClick(Sender: TObject);
-    procedure StopBtnClick(Sender: TObject);
-    procedure ToglAllDaysCheckBoxChange(Sender: TObject);
-    procedure POLDirBrowseBtnClick(Sender: TObject);
-    procedure StartBtnClick(Sender: TObject);
+  StartPOLBtn: TButton;
+  BackupFileNameEdit: TEdit;
+  DaysCheckGroup: TCheckGroup;
+  Label2: TLabel;
+  StatusBar1: TStatusBar;
+  ToglAllDaysCheckBox: TCheckBox;
+  POLDirBrowseBtn: TButton;
+  POLDirEdit: TEdit;
+  Label1: TLabel;
+  POLDirLabel: TLabel;
+  BkpLocLabel: TLabel;
+  StopBtn: TButton;
+  StartBtn: TButton;
+  SourceDirBtn: TButton;
+  DestDirBtn: TButton;
+  SourceDirEdit: TEdit;
+  DestDirEdit: TEdit;
+  SelectDirectoryDialog1: TSelectDirectoryDialog;
+  TimeLabel: TLabel;
+  MondayCheckBox: TCheckBox;
+  TimeEdit1: TTimeEdit;
+  TuesdayCheckBox: TCheckBox;
+  WednesdayCheckBox: TCheckBox;
+  ThursdayCheckBox: TCheckBox;
+  FridayCheckBox: TCheckBox;
+  SaturdayCheckBox: TCheckBox;
+  SundayCheckBox: TCheckBox;
+  procedure DestDirBtnClick(Sender: TObject);
+  procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+  procedure FormShow(Sender: TObject);
+  procedure SourceDirBtnClick(Sender: TObject);
+  procedure StartPOLBtnClick(Sender: TObject);
+  procedure StopBtnClick(Sender: TObject);
+  procedure ToglAllDaysCheckBoxChange(Sender: TObject);
+  procedure POLDirBrowseBtnClick(Sender: TObject);
+  procedure StartBtnClick(Sender: TObject);
 
   private
 
   public
 
   end;
-Type
-  DayNums = Array[0..6] of Integer;
-
 
 const
 	DayNames : array [0..6] of String  = ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
@@ -487,6 +484,7 @@ begin
   Application.ProcessMessages;
   Sleep(3000);
 	SplashScrn.Close;
+
 end;
 
 end.
