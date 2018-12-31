@@ -1,11 +1,11 @@
 object POLBackupper: TPOLBackupper
-  Left = 436
-  Height = 202
-  Top = 417
+  Left = 312
+  Height = 250
+  Top = 331
   Width = 827
   BorderStyle = bsDialog
   Caption = 'POL Backupper'
-  ClientHeight = 202
+  ClientHeight = 250
   ClientWidth = 827
   Font.CharSet = ANSI_CHARSET
   Font.Height = -13
@@ -13,6 +13,7 @@ object POLBackupper: TPOLBackupper
   Font.Pitch = fpVariable
   Font.Quality = fqDraft
   OnClose = FormClose
+  OnCreate = FormCreate
   OnShow = FormShow
   ShowHint = True
   LCLVersion = '1.8.0.6'
@@ -148,10 +149,24 @@ object POLBackupper: TPOLBackupper
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23
-    Top = 179
+    Top = 227
     Width = 827
-    Panels = <>
+    Panels = <    
+      item
+        Text = 'Status of the Backup Scheduler:    Stopped.'
+        Width = 300
+      end    
+      item
+        Alignment = taRightJustify
+        Text = 'Aux Services Status: Not Connected.'
+        Width = 200
+      end    
+      item
+        Alignment = taRightJustify
+        Width = 50
+      end>
     SimpleText = '    Status of the Backup Scheduler:    Stopped.'
+    SimplePanel = False
   end
   object BackupFileNameEdit: TEdit
     Left = 341
@@ -190,6 +205,7 @@ object POLBackupper: TPOLBackupper
     ClientWidth = 773
     ColumnLayout = clVerticalThenHorizontal
     Columns = 8
+    OnClick = DaysCheckGroupClick
     TabOrder = 12
     object ToglAllDaysCheckBox: TCheckBox
       Left = 0
@@ -265,8 +281,60 @@ object POLBackupper: TPOLBackupper
       TabOrder = 7
     end
   end
+  object AuxSvcIPEdit: TEdit
+    Left = 24
+    Height = 23
+    Top = 185
+    Width = 112
+    Alignment = taRightJustify
+    TabOrder = 13
+    Text = '127.0.0.1'
+  end
+  object AuxSvcIPLabel: TLabel
+    Left = 24
+    Height = 15
+    Top = 168
+    Width = 59
+    Caption = 'Aux Svc IP'
+    ParentColor = False
+  end
+  object AuxSvcPortEdit: TEdit
+    Left = 168
+    Height = 23
+    Top = 185
+    Width = 70
+    Alignment = taRightJustify
+    TabOrder = 14
+    Text = '5009'
+  end
+  object AuxSvcPortLabel: TLabel
+    Left = 168
+    Height = 15
+    Top = 168
+    Width = 70
+    Caption = 'Aux Svc Port'
+    ParentColor = False
+  end
+  object EnableAuxSvcCheckBox: TCheckBox
+    Left = 269
+    Height = 19
+    Top = 189
+    Width = 157
+    Caption = 'Use Aux Services Control'
+    OnChange = EnableAuxSvcCheckBoxChange
+    TabOrder = 15
+  end
   object SelectDirectoryDialog1: TSelectDirectoryDialog
     left = 665
     top = 65516
+  end
+  object ActionList1: TActionList
+    left = 440
+    top = 65516
+    object HelpActn: TAction
+      Caption = 'HelpActn'
+      OnExecute = HelpActnExecute
+      ShortCut = 112
+    end
   end
 end

@@ -29,7 +29,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, POL_backup, splash, laz_synapse
+  Forms, POL_backup, splash, laz_synapse, HowTo, notification
   { you can add units after this };
 
 {$R *.res}
@@ -39,6 +39,8 @@ begin
   Application.Initialize;
   Application.CreateForm(TPOLBackupper, POLBackupper);
   Application.CreateForm(TSplashScrn, SplashScrn);
+  Application.CreateForm(TDocForm, DocForm);
+  Application.CreateForm(TNoticeFrm, NoticeFrm);
   Application.Run;
 end.
 

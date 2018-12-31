@@ -1,0 +1,33 @@
+use uo;
+use os;
+
+include ":worldsaver:saver";
+
+program auxtest( connection )
+	var ev;
+	var Saved;
+
+	print( "aux service is running" );
+	while (connection)
+		ev := wait_for_event( 5 );
+		if (ev)
+			Print("remoteSave --> Remote command:" + ev.value);
+			// If the word "Save" is received then perform the world save.
+			if(ev.value == "Save")
+				Saved := SVR_SendCommand(EVENT_REMOTE_SAVE_NOW);
+				SetGlobalProperty("#RemoteSave", "Saving");
+				// Wait for the save to be finished.
+				while (GetGlobalProperty("#RemoteSave") == "Saving")
+					Sleepms(10);
+				endwhile
+				if(GetGlobalProperty("#RemoteSave") == "Done")
+					// Send the word "Done" to the POL Backupper so it can perform the backup.
+					connection.transmit("Error" + CChr(13) + CChr(10)); // + CChr(13) + CChr(10));
+				elseif(GetGlobalProperty("#RemoteSave") == "Error")
+					connection.transmit("Error" + CChr(13) + CChr(10)); // + CChr(13) + CChr(10));
+				endif
+			endif
+		endif
+	endwhile
+	print( "aux connection closed" );
+endprogram

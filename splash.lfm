@@ -1,7 +1,7 @@
 object SplashScrn: TSplashScrn
-  Left = 473
+  Left = 338
   Height = 600
-  Top = 209
+  Top = 205
   Width = 749
   BorderStyle = bsNone
   Caption = 'M31 Software'

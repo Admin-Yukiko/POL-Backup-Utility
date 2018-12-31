@@ -15,8 +15,9 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="4"/>
-      <StringTable ProductVersion="0.0.0.0"/>
+      <MinorVersionNr Value="1"/>
+      <RevisionNr Value="3"/>
+      <StringTable Comments="Licensed under the GPL 3 license" CompanyName="M31 Software" FileDescription="A back-up utility for the POL emulator." LegalCopyright="Copyright 2018 by Dan Gardner" ProductName="POL Backupper" ProductVersion="0.0.0.0"/>
     </VersionInfo>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
@@ -108,7 +109,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="5">
       <Unit0>
         <Filename Value="pol_backupper.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -128,6 +129,19 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="howto.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="DocForm"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="HowTo"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="notification.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="NoticeFrm"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -1,0 +1,41 @@
+object DocForm: TDocForm
+  Left = 334
+  Height = 590
+  Top = 219
+  Width = 772
+  Caption = 'How to use the POL Backupper.'
+  ClientHeight = 590
+  ClientWidth = 772
+  LCLVersion = '1.8.0.6'
+  object Memo1: TMemo
+    Left = 0
+    Height = 590
+    Top = -2
+    Width = 772
+    Color = clSilver
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -19
+    Font.Name = 'Liberation Serif'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Lines.Strings = (
+      'The user interface is designed to be fairly simple and intuitive.'
+      'Across the top are the days on which you want a back-up to occur. Just check the check boxes for the days or check the Select All Days check box to perform a back-up every day. Choose a time each day that you want the back-up to occur by clicking on the clock icon next to the time display. Time is in 24-hour format. Once you have selected the hour and minutes you can either double-click on the minute or the hour or press the <enter> key. Enter the name for your backup file. The date will be appended to the end of the file name in the format YYYY-MM-DD. Select the directory you want backed-up. Typically this will be the /data subdirectory in your POL installation but you can back-up your entire POL directory if you so choose. Any subdirectories under the directory you choose will be included in the backup ZIP file. Next, choose the location where you want the backups to be stored. If you wish you may now click the Start Backup button and the POL Backupper will perform the backups on the selected days at the time you have set. You can pause the backup scheduler at any time by clicking the Stop Timer button.'
+      ''
+      'However, I recommend replacing your current world saver package with the one included in the POL Backupper repository. This is because there is a very small chance that the Backupper might start backing up your data just prior to POL starting a "Saving World State" (SWS) operation and your backup for that day might be flawed. It is a very slight chance but it is still a possibility and I would be remiss if I did not warn you.'
+      ''
+      'The worldSaver package I have included is designed to eliminate this possibility. It uses Aux Services to provide two-way communication between the POL Backupper and your POL server. If you install my worldSaver package you will need to edit a couple settings in the POL Backupper. You will need to set the IP address of your POL server and the AuxSvcs port that the worldSaver package uses. The default port is 5009 but this can be changed in the auxsvc.cfg file in the config folder of the worldSaver package.'
+      ''
+      'Once you have replaced your world saver package with the one provided, start POL. Enter the IP of your POL server and the port for the worldSaver aux svc connection in the text boxes provided. Check the Use Aux Services Control checkbox and in a few seconds you should see in the status bar the message "Aux Services Status: Connected."'
+      ''
+      'My worldSaver package, which is a modified version of Austin’s, will prevent a SWS from occurring during a backup operation. When the POL Backupper is ready to perform a backup it sends the word "Save" to the worldSaver via the Aux Services connection. The remoteSave eScript programme, upon receiving this word sends an event to the worldSaver package''s worldSaver programme. The worldSaver sets a global property indicating that it is saving the world data. Then it calls the DoTheSave function. Assuming there was no error saving the data, the DoTheSave function returns to the main worldSaver loop and then resets the delay for the next scheduled time that POL will perform a Saving World State (SWS) to the normal delay contained in the saver''s settings.cfg file, normally 60 minutes. In this way we are assured the Backupper has time to back-up the directory before POL attempts a SWS.'
+      ''
+      'About the "assuming there was no error" comment above; if an error occurs whilst POL is attempting to perform a SWS then two things occur. First, the Backupper receives a message that there was a problem saving the world state. It then aborts trying to back up your data. This is to avoid a corrupt backup and it notifies you that there was a serious issue with the POL server. The second thing that happens is the worldSaver shuts down POL to avoid any further issues.'
+      ''
+      'One last option is that you can start your POL server from the Backupper interface. Set the location of your POL server and click the Start POL button.'
+    )
+    ParentFont = False
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+end

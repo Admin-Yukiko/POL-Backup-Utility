@@ -1,0 +1,63 @@
+object NoticeFrm: TNoticeFrm
+  Left = 493
+  Height = 303
+  Top = 289
+  Width = 456
+  Caption = 'Something requires your attention!'
+  ClientHeight = 303
+  ClientWidth = 456
+  Font.CharSet = ANSI_CHARSET
+  Font.Height = -19
+  Font.Name = 'Liberation Serif'
+  Font.Pitch = fpVariable
+  Font.Quality = fqDraft
+  LCLVersion = '1.8.0.6'
+  object NotifyLabel: TLabel
+    Left = 186
+    Height = 21
+    Top = 15
+    Width = 83
+    Caption = 'Red Alert!'
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -19
+    Font.Name = 'Liberation Serif'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object NoticeStaticText: TStaticText
+    Left = 30
+    Height = 208
+    Top = 48
+    Width = 396
+    Caption = 'Notification.'
+    Color = 4390911
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -16
+    Font.Name = 'Liberation Serif'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+    ParentColor = False
+    TabOrder = 0
+  end
+  object OkNoticeBtn: TButton
+    Left = 191
+    Height = 25
+    Top = 264
+    Width = 74
+    Caption = 'OK'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -16
+    Font.Name = 'Liberation Serif'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    OnClick = OkNoticeBtnClick
+    ParentFont = False
+    TabOrder = 1
+  end
+end

@@ -27,14 +27,22 @@ unit POL_backup;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  EditBtn, ComCtrls, ExtCtrls, ShellAPI, StrUtils, LazFileUtils, Zipper, splash;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Synautil,
+  blcksock, StdCtrls, EditBtn, ComCtrls, ExtCtrls, ActnList, ShellAPI, IniFiles,
+  StrUtils, LazFileUtils, Zipper, splash;
 
 type
 
   { TPOLBackupper }
 
   TPOLBackupper = class(TForm)
+    HelpActn: TAction;
+    ActionList1: TActionList;
+    AuxSvcIPEdit: TEdit;
+    AuxSvcIPLabel: TLabel;
+    AuxSvcPortEdit: TEdit;
+    AuxSvcPortLabel: TLabel;
+    EnableAuxSvcCheckBox: TCheckBox;
   StartPOLBtn: TButton;
   BackupFileNameEdit: TEdit;
   DaysCheckGroup: TCheckGroup;
@@ -62,15 +70,22 @@ type
   FridayCheckBox: TCheckBox;
   SaturdayCheckBox: TCheckBox;
   SundayCheckBox: TCheckBox;
+  procedure DaysCheckGroupClick(Sender: TObject);
   procedure DestDirBtnClick(Sender: TObject);
+  procedure EnableAuxSvcCheckBoxChange(Sender: TObject);
   procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+  procedure FormCreate(Sender: TObject);
   procedure FormShow(Sender: TObject);
+  procedure HelpActnExecute(Sender: TObject);
   procedure SourceDirBtnClick(Sender: TObject);
   procedure StartPOLBtnClick(Sender: TObject);
   procedure StopBtnClick(Sender: TObject);
   procedure ToglAllDaysCheckBoxChange(Sender: TObject);
   procedure POLDirBrowseBtnClick(Sender: TObject);
   procedure StartBtnClick(Sender: TObject);
+  Procedure ReadFromIniFile();
+  Procedure WriteToIniFile();
+  Procedure OpenAuxConnection();
 
   private
 
@@ -84,8 +99,40 @@ const
 var
   POLBackupper: TPOLBackupper;
   TimerRunning: Boolean = False;
-
+	ConfigIni: TIniFile;
+  UseAuxSvcs: Boolean;
+  AuxSvcsActive: Boolean;
+  AuxSocket: TTCPBlockSocket;
+  
 implementation
+
+Uses HowTo, notification;
+
+///////////////////////////////////////////////////////////////
+//
+// Bulk enable or disable checkboxes and certain other things
+// during the time the scheduler is active.
+// EnableThem - True to Enable, False to disable.
+//
+///////////////////////////////////////////////////////////////
+procedure EnableDaysCheckBoxes(EnableThem: Boolean);
+
+Begin
+  POLBackupper.SundayCheckBox.Enabled:=EnableThem;
+  POLBackupper.MondayCheckBox.Enabled:=EnableThem;
+  POLBackupper.TuesdayCheckBox.Enabled:=EnableThem;
+  POLBackupper.WednesdayCheckBox.Enabled:=EnableThem;
+  POLBackupper.ThursdayCheckBox.Enabled:=EnableThem;
+  POLBackupper.FridayCheckBox.Enabled:=EnableThem;
+  POLBackupper.SaturdayCheckBox.Enabled:=EnableThem;
+	POLBackupper.ToglAllDaysCheckBox.Enabled:=EnableThem;
+  POLBackupper.SourceDirBtn.Enabled:=EnableThem;
+  POLBackupper.DestDirBtn.Enabled:=EnableThem;
+  POLBackupper.StartBtn.Enabled:=EnableThem;
+  POLBackupper.TimeEdit1.Enabled:=EnableThem;
+  POLBackupper.BackupFileNameEdit.Enabled:=EnableThem;
+
+end;
 
 /////////////////////////////////////////////////
 //
@@ -113,7 +160,7 @@ end;
 ///////////////////////////////////////////////////////////////
 //
 // This procedure does the zip compression of the directory
-// and directories under the target directory and places it
+// and subdirectories under the target directory and places it
 // in the back-up directory specified. It is called by the
 // IsAScheduledDay function.
 //
@@ -181,6 +228,9 @@ end;
 // it waits for the proper time. It then calls the
 // NDTFilesPresent function until there are no longer any
 // *.ndt files present in the directory to be backed-up.
+// It then performs the Aux Services communication with the
+// server that prevents a world save during a back-up
+// operation.
 // Then it calls ZipTheDir.
 //
 ///////////////////////////////////////////////////////////////
@@ -189,6 +239,8 @@ Function IsAScheduledDay(DayCheck: Boolean): Boolean;
 Var
   CurrentTime: Integer;
   BackupTime: Integer;
+	// String received from the POL server after a world save.
+  RecdString: String;
 Begin
   // If the checkbox for the current day is not checked then exit back to WaitForTime
   If(Not DayCheck) Then Exit;
@@ -219,9 +271,41 @@ Begin
       Sleep(50);
       Application.ProcessMessages;
     end;
-	
+  If(AuxSvcsActive) Then
+  Begin
+    // The Aux Services communication happens here.
+  	// Send the command to the worldSaver aux svcs programme to save the world state.
+	  AuxSocket.SendString('S4:Save' + Chr(13) + Chr(10));
+    // Wait for a response that it is done saving.
+    // The word "Done" is actually sent but all I need is a response
+    While(AuxSocket.WaitingData < 1) Do Sleep(20);
+    RecdString := AuxSocket.RecvString(4000);
+    If(RecdString <> 'sDone') Then
+    Begin
+      TimerRunning := False;
+      POLBackupper.SourceDirBtn.Enabled:=True;
+      POLBackupper.DestDirBtn.Enabled:=True;
+      POLBackupper.StartBtn.Enabled:=True;
+      POLBackupper.TimeEdit1.Enabled:=True;
+      POLBackupper.BackupFileNameEdit.Enabled:=True;
+      EnableDaysCheckBoxes(True);
+      POLBackupper.StatusBar1.Panels.Items[0].Text:='Status of the Backup Scheduler: Stopped.';
+      NoticeFrm.NotifyLabel.Caption := 'Red Alert!';
+      NoticeFrm.NotifyLabel.Font.Color:=clRed;
+      NoticeFrm.NotifyLabel.Left:=186;
+      NoticeFrm.NoticeStaticText.Caption := 'There was a problem with the world save on the POL server!' + Chr(13) + Chr(10) + 
+      																			'The POL server has been shut down. The Backupper has been stopped to avoid ' + 
+                  													'backing up potentially corrupted world data.' +
+      																			'Check your POL server to determine what the issue is.';
+      NoticeFrm.ShowModal;
+      Exit;
+    end; // I(RecdString
+  end; // If(AuxSvcActive)
+  
   //Do the backup.
   ZipTheDir();
+
+  
 
 end;
 
@@ -277,31 +361,98 @@ end;
 
 { TPOLBackupper }
 
-///////////////////////////////////////////////////////////////
-//
-// Bulk enable or disable checkboxes and certain other things
-// during the time the scheduler is active.
-// EnableThem - True to Enable, False to disable.
-//
-///////////////////////////////////////////////////////////////
-procedure EnableDaysCheckBoxes(EnableThem: Boolean);
-
+Procedure TPOLBackupper.OpenAuxConnection();
 Begin
-  POLBackupper.SundayCheckBox.Enabled:=EnableThem;
-  POLBackupper.MondayCheckBox.Enabled:=EnableThem;
-  POLBackupper.TuesdayCheckBox.Enabled:=EnableThem;
-  POLBackupper.WednesdayCheckBox.Enabled:=EnableThem;
-  POLBackupper.ThursdayCheckBox.Enabled:=EnableThem;
-  POLBackupper.FridayCheckBox.Enabled:=EnableThem;
-  POLBackupper.SaturdayCheckBox.Enabled:=EnableThem;
-	POLBackupper.ToglAllDaysCheckBox.Enabled:=EnableThem;
-  POLBackupper.SourceDirBtn.Enabled:=EnableThem;
-  POLBackupper.DestDirBtn.Enabled:=EnableThem;
-  POLBackupper.StartBtn.Enabled:=EnableThem;
-  POLBackupper.TimeEdit1.Enabled:=EnableThem;
-  POLBackupper.BackupFileNameEdit.Enabled:=EnableThem;
+  If(AuxSvcIPEdit.Text <> 'none') Then
+  Begin
+	  AuxSocket.Connect(AuxSvcIPEdit.Text, AuxSvcPortEdit.Text);
+  	If(AuxSocket.LastError <> 0) Then
+    Begin
+    	StatusBar1.Panels.Items[1].Text := 'Aux Services Status: Not Connected.';
+      NoticeFrm.NotifyLabel.Caption:='Yellow Alert';
+      NoticeFrm.NotifyLabel.Left:=178;
+      NoticeFrm.NoticeStaticText.Caption := 'Could not connect to Aux Services.' + Chr(13) + Chr(10) + 
+			                                      'Either the POL server is offline or ' + 
+                                            'the IP address and/or port are incorrect. ' + 
+                                            'Check the Aux Svc IP and Port settings ' + 
+                                            'to ensure they are correct. If they are, ' + 
+                                            'check your POL server to ensure it is running. ' + 
+                                            'If it is then click on the "Use Aux Services Control" ' + 
+                                            'check box to uncheck the check box and temporarily ' + 
+                                            'disable Aux Svcs. Then click on it again ' + 
+                                            'to re-enable Aux Svc. If this does not resolve ' + 
+                                            'the issue, make sure you have forwarded the ' + 
+                                            'port in your router to your POL server machine.';
+      NoticeFrm.ShowModal;
+			EnableAuxSvcCheckBox.Checked:=False;
+      Exit;
+    end
+    Else
+    Begin
+      StatusBar1.Panels.Items[1].Text := 'Aux Services Status: Connected.';
+      AuxSvcsActive := True;
+    end;
+  end;
 
 end;
+
+// Read the info from the INI file.
+Procedure TPOLBackupper.ReadFromIniFile();
+
+Var
+  UseAuxSvcsSetting: String;
+Begin
+  // Create the ini file if not already there
+  ConfigIni := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'POLBackupper.ini');
+  with ConfigIni do
+  begin
+    // If 'Users POL directory has a value else make it = to 'POL Location'
+    POLDirEdit.Text := ReadString('Startup','Users POL directory','POL location');
+    AuxSvcIPEdit.Text := ReadString('Startup','Aux Svc IP','127.0.0.1');
+    AuxSvcPortEdit.Text := ReadString('Startup','Aux Svc Port', '5009');
+    UseAuxSvcsSetting := ReadString('Startup','Use Aux Svc', 'False');
+    If(UseAuxSvcsSetting = 'True') Then EnableAuxSvcCheckBox.Checked := True;
+    BackupFileNameEdit.Text := ReadString('Startup','Backup File Name', 'Backup');
+    POLBackupper.SourceDirEdit.Text := ReadString('Startup', 'Source Directory', '<source>');
+    POLBackupper.DestDirEdit.Text := ReadString('Startup','Destination Directory', '<destination>');
+    POLBackupper.top   :=ReadInteger('Position and size','Top of window- from top of screen',90);
+    POLBackupper.left  :=ReadInteger('Position and size','Left',366);
+    POLBackupper.height:=ReadInteger('Position and size','Height',250);
+    POLBackupper.width :=ReadInteger('Position and size','Width',828);
+  
+  end; // With...
+  ConfigIni.Free;
+end;
+
+// Write the info to the INI file
+Procedure TPOLBackupper.WriteToIniFile();
+
+Var
+  UseAuxSvcsSetting: String;
+
+Begin
+  ConfigIni:=TIniFile.Create(ExtractFilePath(Application.ExeName) + 'POLBackupper.ini');
+  with ConfigIni do
+  begin
+    WriteString('Startup','Users POL directory', POLDirEdit.Text);
+    WriteString('Startup','Aux Svc IP', AuxSvcIPEdit.Text);
+    WriteString('Startup','Aux Svc Port', AuxSvcPortEdit.Text);
+    If(EnableAuxSvcCheckBox.Checked) Then WriteString('Startup','Use Aux Svc', 'True')
+    Else WriteString('Startup','Use Aux Svc', 'False');
+    WriteString('Startup','Backup File Name', BackupFileNameEdit.Text);
+    WriteString('Startup','Source Directory', SourceDirEdit.Text);
+    WriteString('Startup','Destination Directory', DestDirEdit.Text);
+    // Save the position of the POL Backupper form.
+    WriteInteger('Position and size','Top of window- from top of screen',POLBackupper.top);
+    WriteInteger('Position and size','Left',  POLBackupper.left);
+    WriteInteger('Position and size','Height',POLBackupper.height);
+    WriteInteger('Position and size','Width', POLBackupper.width);
+  end;//with...
+  ConfigIni.Free;
+
+end;
+
+
 
 ///////////////////////////////////////////////////////////////
 //
@@ -323,10 +474,18 @@ begin
     JunkString := SelectDirectoryDialog1.FileName;
     If(FileExists(JunkString + '/pol.exe')) Then
       POLDirEdit.Text := JunkString
-    Else ShowMessage('You must select a valid POL directory. Either you accidentally chose the wrong directory or you might ' + Chr(13) + Chr(10) +
-                      'be missing one of three *.exe files that the Configurator uses to validate your POL location. Paths are relative to' + Chr(13) + Chr(10) +
-                      'your POL installation. These are /pol.exe, /uoconvert.exe, and /poltool.exe. ');
-
+    Else
+    Begin
+      NoticeFrm.NotifyLabel.Caption:='Yellow Alert';
+      NoticeFrm.NotifyLabel.Left:=178;
+    	NoticeFrm.NoticeStaticText.Caption := 'You must select a valid POL directory. ' +
+      																			'Either you accidentally chose the wrong directory or you might ' +
+                      											'be missing one of three *.exe files that the POL Backupper uses to ' +
+                                            'validate your POL location. These are /pol.exe, /uoconvert.exe, and /poltool.exe. ' +
+                      											'Paths are relative to your POL installation. ';
+      NoticeFrm.ShowModal;
+      Exit;
+    end;
 
 end;
 
@@ -354,7 +513,7 @@ begin
 	// Set TimerRunning to True.
   TimerRunning := True;
   // Displays the text in the status bar.
-  StatusBar1.SimpleText:='    Status of the Backup Scheduler:    Running.';
+  StatusBar1.Panels.Items[0].Text:='Status of the Backup Scheduler: Running.';
   // Disables various things whilst the backup timer is running.
   SourceDirBtn.Enabled:=False;
   DestDirBtn.Enabled:=False;
@@ -405,7 +564,7 @@ end;
 procedure TPOLBackupper.StopBtnClick(Sender: TObject);
 begin
   TimerRunning := False;
-  StatusBar1.SimpleText:='    Status of the Backup Scheduler:    Stopped.';
+  StatusBar1.Panels.Items[0].Text:='Status of the Backup Scheduler: Stopped.';
   SourceDirBtn.Enabled:=True;
   DestDirBtn.Enabled:=True;
   StartBtn.Enabled:=True;
@@ -459,6 +618,21 @@ begin
   if SelectDirectoryDialog1.Execute then DestDirEdit.Text:=SelectDirectoryDialog1.FileName;
 end;
 
+procedure TPOLBackupper.DaysCheckGroupClick(Sender: TObject);
+begin
+
+end;
+
+procedure TPOLBackupper.EnableAuxSvcCheckBoxChange(Sender: TObject);
+begin
+  If(EnableAuxSvcCheckBox.Checked) Then OpenAuxConnection()
+  Else
+  Begin
+    AuxSocket.CloseSocket;
+    StatusBar1.Panels.Items[1].Text := 'Aux Services Status: Not Connected.';;
+  end;
+end;
+
 ///////////////////////////////////////////////////////////////
 //
 // The procedure called when the program is closed.
@@ -467,7 +641,18 @@ end;
 procedure TPOLBackupper.FormClose(Sender: TObject; var CloseAction: TCloseAction
   );
 begin
+  AuxSocket.CloseSocket;
+  WriteToIniFile();
   Halt;
+end;
+
+procedure TPOLBackupper.FormCreate(Sender: TObject);
+begin
+  AuxSvcsActive := False;
+	StatusBar1.Panels.Items[1].Text := 'Aux Services Status: Not Connected.';
+  StatusBar1.Panels.Items[2].Text:='Press F1 for help.';
+  AuxSocket := TTCPBlockSocket.Create;
+  ReadFromIniFile();
 end;
 
 ///////////////////////////////////////////////////////////////
@@ -478,13 +663,17 @@ end;
 ///////////////////////////////////////////////////////////////
 procedure TPOLBackupper.FormShow(Sender: TObject);
 begin
-  Sleep(100);
   SplashScrn.Show;
   SplashScrn.Update;
   Application.ProcessMessages;
   Sleep(3000);
 	SplashScrn.Close;
 
+end;
+
+procedure TPOLBackupper.HelpActnExecute(Sender: TObject);
+begin
+	DocForm.Show;
 end;
 
 end.
